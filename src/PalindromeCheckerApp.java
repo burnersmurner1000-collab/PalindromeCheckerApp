@@ -1,48 +1,52 @@
-import java.util.*;
-
 public class PalindromeCheckerApp {
-    interface PalindromeStrategy {
-        boolean check(String input);
+    public static boolean isPalindromeReverse(String input) {
+        String reversed = new StringBuilder(input).reverse().toString();
+        return input.equalsIgnoreCase(reversed);
     }
 
-    static class StackStrategy implements PalindromeStrategy {
-        public boolean check(String input) {
-            Stack<Character> stack = new Stack<>();
-            for (char c : input.toCharArray()) {
-                stack.push(Character.toLowerCase(c));
+    public static boolean isPalindromeTwoPointer(String input) {
+        int left = 0;
+        int right = input.length() - 1;
+        while (left < right) {
+            if (Character.toLowerCase(input.charAt(left)) != Character.toLowerCase(input.charAt(right))) {
+                return false;
             }
-            for (char c : input.toCharArray()) {
-                if (Character.toLowerCase(c) != stack.pop()) {
-                    return false;
-                }
-            }
-            return true;
+            left++;
+            right--;
         }
+        return true;
     }
 
-    static class DequeStrategy implements PalindromeStrategy {
-        public boolean check(String input) {
-            Deque<Character> deque = new ArrayDeque<>();
-            for (char c : input.toCharArray()) {
-                deque.addLast(Character.toLowerCase(c));
-            }
-            while (deque.size() > 1) {
-                if (deque.removeFirst() != deque.removeLast()) {
-                    return false;
-                }
-            }
-            return true;
-        }
+    public static long measureExecutionTime(Runnable task) {
+        long start = System.nanoTime();
+        task.run();
+        long end = System.nanoTime();
+        return end - start;
     }
 
     public static void main(String[] args) {
-        String input = "Level";
+        String input = "LeveL";
         System.out.println("Input: " + input);
-        PalindromeStrategy stackStrategy = new StackStrategy();
-        boolean stackResult = stackStrategy.check(input);
-        System.out.println("StackStrategy - Is Palindrome? : " + stackResult);
-        PalindromeStrategy dequeStrategy = new DequeStrategy();
-        boolean dequeResult = dequeStrategy.check(input);
-        System.out.println("DequeStrategy - Is Palindrome? : " + dequeResult);
+
+        long reverseTime = measureExecutionTime(() -> {
+            boolean result = isPalindromeReverse(input);
+            System.out.println("Reverse Method - Is Palindrome? " + result);
+        });
+        System.out.println("Execution Time (Reverse): " + reverseTime + " ns");
+
+        long twoPointerTime = measureExecutionTime(() -> {
+            boolean result = isPalindromeTwoPointer(input);
+            System.out.println("Two-Pointer Method - Is Palindrome? " + result);
+        });
+        System.out.println("Execution Time (Two-Pointer): " + twoPointerTime + " ns");
+
+        System.out.println("\nPerformance Comparison:");
+        if (reverseTime < twoPointerTime) {
+            System.out.println("Reverse method is faster.");
+        } else if (twoPointerTime < reverseTime) {
+            System.out.println("Two-pointer method is faster.");
+        } else {
+            System.out.println("Both methods performed equally.");
+        }
     }
 }
